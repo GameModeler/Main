@@ -1,0 +1,21 @@
+[submodule "Core"]
+	path = Core
+	url = https://github.com/GameModeler/Core.git
+[submodule "API"]
+	path = API
+	url = https://github.com/GameModeler/API.git
+[submodule "Animation"]
+	path = Animation
+	url = https://github.com/GameModeler/Animation.git
+[submodule "Database"]
+	path = Database
+	url = https://github.com/GameModeler/Database.git
+[submodule "Logger"]
+	path = Logger
+	url = https://github.com/GameModeler/Logger.git
+[submodule "Map"]
+	path = Map
+	url = https://github.com/GameModeler/Map.git
+[submodule "DataBase"]
+	path = DataBase
+	url = https://github.com/GameModeler/DataBase.git
