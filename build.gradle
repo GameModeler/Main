@@ -1,0 +1,619 @@
+// Gradle script to generate packages nugets for the Game Moduler solution
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import java.io.File;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
+//sourceCompatibility = 1.8
+version = '1.0'
+apply plugin: 'java'
+
+// custom methods to manage nupkg versions
+apply from: 'common-methods.gradle'
+
+// nuspec folder
+def nuspec = "Nuspec/"
+
+// .nuspec file
+def nuspecFile = "Package.nuspec"
+def nupkgExt = ".nupkg"
+
+// Modules path
+def databasePath = "DataBase/"
+def loggerPath = "Logger/"
+def corePath = "Core/"
+def mapPath = "Map/"
+def apiPath = "Api/"
+def animationPath = "Animation/"
+
+
+////// DATABASE MODULE ////////////////////
+
+/**
+ * Create the DataBase Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task dataBaseMkNupkg(type: MkNuget) {
+	
+	module 'DataBase'
+	// get nuspec file version
+	nuspecVersion getVersion(databasePath + nuspec + nuspecFile)
+	// get nupkg file version
+	nupkgVersion getVersionNupkg(databasePath + nuspec)
+	// nuspec folder path
+	nuspecPath databasePath + nuspec
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Move nupkg files for the Database Module
+ * @param  MoveTo [description]
+ * @return        [description]
+ */
+task moveToDataBase(type: MoveTo) {
+
+	module 'DataBase'
+
+	// nupkg file version
+	nupkgVersion getVersionNupkg(databasePath + nuspec)
+
+	nuspecVersion getVersion(databasePath + nuspec + nuspecFile)
+
+	pathStr databasePath + nuspec
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+
+}
+
+/**
+ * Get the DataBase Module nuget package version
+ */
+task databaseNupkgVersion {
+	version getVersionNupkg(databasePath + nuspec)
+
+	doLast {
+		println "DataBase Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the DataBase Module Package.nuspec version
+ */
+task databaseNuspecVersion {
+	version getVersion(databasePath + nuspec + nuspecFile)
+
+	doLast {
+		println "DataBase Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the DataBase Module
+ * @param  ['dataBaseMkNupkg' [description]
+ * @param  'moveToDataBase']  [description]
+ * @return                    [description]
+ */
+task dataBaseNuget(dependsOn: ['dataBaseMkNupkg', 'moveToDataBase']) {
+
+	doLast {}
+}
+
+////// LOGGER MODULE ////////////////////
+
+/**
+ * Create the Logger Module package nuget
+ * Depends on the Database package nuget module
+ * @param  MkNuget         [description]
+ * @param  'dataBaseNuget' [description]
+ * @return                 [description]
+ */
+task loggerMkNupkg(type: MkNuget, dependsOn: 'dataBaseNuget') {
+	
+	module 'Logger'
+	
+	nuspecPath loggerPath + nuspec
+
+	nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	// get nupkg file version
+	nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	// nuspec folder path
+	nuspecPath loggerPath + nuspec
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Move nupkg files for the Database Module
+ * @param  MoveTo [description]
+ * @return        [description]
+ */
+task moveToLogger(type: MoveTo) {
+
+	module 'Logger'
+
+	// nupkg file version
+	nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	pathStr loggerPath + nuspec
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+
+}
+
+/**
+ * Get the Logger Module nuget package version
+ */
+task loggerNupkgVersion {
+	version getVersionNupkg(loggerPath + nuspec)
+
+	doLast {
+		println "Logger Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the Logger Module Package.nuspec version
+ */
+task loggerNuspecVersion {
+	version getVersion(loggerPath + nuspec + nuspecFile)
+
+	doLast {
+		println "Logger Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the Logger Module
+ * @param  ['loggerMkNupkg' [description]
+ * @param  ['moveToLogger']  [description]
+ * @return                  [description]
+ */
+task loggerNuget(dependsOn: ['loggerMkNupkg', 'moveToLogger']) {
+
+	doLast {}
+}
+
+
+////// API MODULE ////////////////////
+
+/**
+ * Create the Api Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task apiMkNupkg(type: MkNuget) {
+	module 'Api'
+	nuspecPath apiPath + nuspec
+	
+	//nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	// get nupkg file version
+	//nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Get the Api Module nuget package version
+ */
+task apiNupkgVersion {
+	
+	//version getVersionNupkg(apiPath + nuspec)
+
+	doLast {
+		println "Api Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the Api Module Package.nuspec version
+ */
+task apiNuspecVersion {
+	
+	//version getVersion(apiPath + nuspec + nuspecFile)
+
+	doLast {
+		println "Api Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the Api Module
+ * @param  ['apiMkNupkg' [description]
+ * @param  'moveToApi']  [description]
+ * @return                  [description]
+ */
+/*task apiNuget(dependsOn: ['apiMkNupkg', 'moveToApi']) {
+
+	doLast {}
+}*/
+
+////// CORE MODULE ////////////////////
+
+/**
+ * Create the Core Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task coreMkNupkg(type: MkNuget) {
+	module 'Core'
+	nuspecPath corePath + nuspec
+	
+	//nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	// get nupkg file version
+	//nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Get the Core Module nuget package version
+ */
+task coreNupkgVersion {
+	
+	//version getVersionNupkg(corePath + nuspec)
+
+	doLast {
+		println "Core Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the Core Module Package.nuspec version
+ */
+task coreNuspecVersion {
+	
+	//version getVersion(corePath + nuspec + nuspecFile)
+
+	doLast {
+		println "Core Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the Core Module
+ * @param  ['coreMkNupkg' [description]
+ * @param  'moveToCore']  [description]
+ * @return                  [description]
+ */
+/*task coreNuget(dependsOn: ['coreMkNupkg', 'moveToCore']) {
+
+	doLast {}
+}*/
+
+////// MAP MODULE ////////////////////
+
+/**
+ * Create the Map Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task mapMkNupkg(type: MkNuget) {
+	module 'Map'
+	nuspecPath mapPath + nuspec
+	
+	//nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	// get nupkg file version
+	//nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Get the Core Module nuget package version
+ */
+task mapNupkgVersion {
+	
+	//version getVersionNupkg(mapPath + nuspec)
+
+	doLast {
+		println "Map Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the Logger Module Package.nuspec version
+ */
+task mapNuspecVersion {
+	
+	//version getVersion(mapPath + nuspec + nuspecFile)
+
+	doLast {
+		println "Map Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the Map Module
+ * @param  ['mapMkNupkg' [description]
+ * @param  'moveToMap']  [description]
+ * @return                  [description]
+ */
+/*task mapNuget(dependsOn: ['mapMkNupkg', 'moveToMap']) {
+
+	doLast {}
+}*/
+
+////// ANIMATION MODULE ////////////////////
+
+/**
+ * Create the Animation Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task animationMkNupkg(type: MkNuget) {
+	module 'Api'
+	nuspecPath animationPath + nuspec
+	//nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+
+	// get nupkg file version
+	//nupkgVersion getVersionNupkg(loggerPath + nuspec)
+
+	// nuspec file
+	packageNuget nuspecFile
+
+	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Get the Animation Module nuget package version
+ */
+task animationNupkgVersion {
+	
+	//version getVersionNupkg(animationPath + nuspec)
+
+	doLast {
+		println "Animation Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the animation Module Package.nuspec version
+ */
+task animationNuspecVersion {
+	
+	//version getVersion(animationPath + nuspec + nuspecFile)
+
+	doLast {
+		println "Animation Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Global task for the Animation Module
+ * @param  ['animationMkNupkg' [description]
+ * @param  'moveToAnimation']  [description]
+ * @return                  [description]
+ */
+/*task animationNuget(dependsOn: ['animationMkNupkg', 'moveToAnimation']) {
+
+	doLast {}
+}*/
+
+////// GAME MODELER ////////////////////////
+
+task gameModelerMkNupkg(type: MkNuget) {
+	//build Game Modeler package nuget
+}
+
+/**
+ * Get the Game Modeler Module nuget package version
+ */
+task gameModelerNupkgVersion {
+	
+	//version getVersionNupkg("")
+
+	doLast {
+		println "Game Modeler Module's package nuget version : "  + version
+	}
+}
+
+/**
+ * Get the Game Modeler Module Package.nuspec version
+ */
+task gameModelerNuspecVersion {
+	
+	//version getVersion(nuspecFile)
+
+	doLast {
+		println "Game Modeler Module's Package.nuspec version : "  + version
+	}
+}
+
+
+////// HELP ////////////////////////////////
+
+task help {
+
+	doLast {
+
+		println "Game Modeler"
+		println "---------------"
+/*		println "animationMkNupkg : Generate the Animation Module nuget package"
+		println "moveToAnimation : Move a package nuget to the Animation Module Nuspec folder"*/
+		println "gameModdelerNupkgVersion : Get the Game Modeler nuget package version"
+		println "gameModdelerVersion : Get the Game Modeler Package.nuspec version"
+		println "gameModelerNuget : Generate the nuget package for the Game Modeler solution"
+
+		println ""
+
+		println "DataBase Module"
+		println "---------------"
+		println "dataBaseMkNupkg : Generate the DataBase Module nuget package"
+		println "moveToDataBase : Move a package nuget to the DataBase Module Nuspec folder"
+		println "databaseNupkgVersion : Get the DataBase Module's nuget package version"
+		println "databaseNuspecVersion : Get the DataBase Module's Package.nuspec version"
+		println "dataBaseNuget : Generate the DataBase Module nuget package and move the package into Nuspec folder"
+
+		println ""
+
+		println "Logger Module"
+		println "---------------"
+		println "loggerMkNupkg : Generate the Logger Module nuget package"
+		println "moveToLogger : Move a package nuget to the Logger Module Nuspec folder"
+		println "loggerNupkgVersion : Get the Logger Module's nuget package version"
+		println "loggerNuspecVersion : Get the Logger Module's Package.nuspec version"
+		println "loggerNuget : Generate the Logger Module nuget package and move the package into Nuspec folder"
+
+		println ""
+
+		println "Api Module"
+		println "---------------"
+		println "apiMkNupkg : Generate the Api Module nuget package"
+		println "moveToApi : Move a package nuget to the Api Module Nuspec folder"
+		println "apiNupkgVersion : Get the Api Module's nuget package version"
+		println "apiNuspecVersion : Get the Api Module's Package.nuspec version"
+		println "apiNuget : Generate the Api Module nuget package and move the package into Nuspec folder"
+
+		println ""
+
+		println "Core Module"
+		println "---------------"
+		println "coreMkNupkg : Generate the Core Module nuget package"
+		println "moveToCore : Move a package nuget to the Core Module Nuspec folder"
+		println "coreNupkgVersion : Get the Core Module's nuget package version"
+		println "coreNuspecVersion : Get the Core Module's Package.nuspec version"
+		println "coreNuget : Generate the Core Module nuget package and move the package into Nuspec folder"
+
+		println ""
+		
+		println "Map Module"
+		println "---------------"
+		println "mapMkNupkg : Generate the Map Module nuget package"
+		println "moveToMap : Move a package nuget to the Map Module Nuspec folder"
+		println "mapNupkgVersion : Get the Map Module's nuget package version"
+		println "mapNuspecVersion : Get the Map Module's Package.nuspec version"
+		println "mapNuget : Generate the Map Module nuget package and move the package into Nuspec folder"
+
+		println ""
+		
+		println "Animation Module"
+		println "---------------"
+		println "animationMkNupkg : Generate the Animation Module nuget package"
+		println "moveToAnimation : Move a package nuget to the Animation Module Nuspec folder"
+		println "animationNupkgVersion : Get the AnimationNupkgVersion Module's nuget package version"
+		println "animationNuspecVersion : Get the AnimationNupkgVersion Module's Package.nuspec version"
+		println "animationNuget : Generate the Animation Module nuget package and move the package into Nuspec folder"
+	}
+}
+
+////////////////////////////////////////////
+// CUSTOM TASKS ////////////////////////////
+////////////////////////////////////////////
+
+/**
+* Move new nupkg created file from source directory to the Nuspec's module folder
+* Move old nupkg file from Nuspec's module folder to Nuspec/Archive folder
+*/
+class MoveTo extends DefaultTask {
+
+	@Input
+	module
+
+	@Input
+	nupkgVersion
+
+	@Input
+	nuspecVersion
+
+	@Input
+	pathStr
+
+	@TaskAction
+	def moveTo() {
+
+		// Move nupkg file to Archive	
+		String target = pathStr + "Archive/"
+		
+		moveToMethod(module, nupkgVersion, pathStr, target)
+
+		// Move nupk file from base dir to module Nuspec folder
+		String source = ""
+		 
+		moveToMethod(module, nuspecVersion, source, pathStr)
+
+	}
+
+	def moveToMethod(module, version, source, target) {
+
+		println "here"
+
+		def GAME_MODELER = "GameModeler"
+
+		// package nuget name
+		def nupkgName = String.format("%s.%s.%s.nupkg", GAME_MODELER, module, version)
+
+		if( "".equals(source)) {
+		   	Thread.sleep(1000);
+		}
+
+		project.file(source + nupkgName).renameTo(project.file(target + nupkgName))
+
+	}
+}
+
+/**
+ * Create the package nuget
+ */
+class MkNuget extends DefaultTask {
+
+	@Input
+	module
+
+	@Input
+	nuspecPath
+
+	@Input
+	nuspecVersion
+
+	@Input
+	nupkgVersion
+
+	@Input
+	packageNuget
+
+	@TaskAction
+	def mkNuget(){
+			
+		// build nuget package
+		String nugetCommand = "nuget pack " + nuspecPath + packageNuget
+
+		// Execute commande
+		Runtime.getRuntime().exec(nugetCommand)
+	}
+}
+
