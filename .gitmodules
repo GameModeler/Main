@@ -19,3 +19,6 @@
 [submodule "DataBase"]
 	path = DataBase
 	url = https://github.com/GameModeler/DataBase.git
+[submodule "Editor"]
+	path = Editor
+	url = git@github.com:GameModeler/Editor.git
