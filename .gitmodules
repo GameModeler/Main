@@ -7,9 +7,6 @@
 [submodule "Animation"]
 	path = Animation
 	url = https://github.com/GameModeler/Animation.git
-[submodule "Database"]
-	path = Database
-	url = https://github.com/GameModeler/Database.git
 [submodule "Logger"]
 	path = Logger
 	url = https://github.com/GameModeler/Logger.git
