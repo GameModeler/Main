@@ -19,3 +19,6 @@
 [submodule "Editor"]
 	path = Editor
 	url = https://github.com/GameModeler/Editor.git
+[submodule "Tests"]
+	path = Tests
+	url = https://github.com/GameModeler/Tests.git
