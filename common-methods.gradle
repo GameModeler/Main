@@ -35,6 +35,24 @@ def getVersion(path) {
 
 }
 
+def getAssemblyVersion(path) {
+
+	// check c# assembly version
+	File f = new File(path);
+	def line
+	def version = "0.0.0"
+	f.withReader { reader ->
+	    while ((line = reader.readLine())!=null) {
+	    	if( (line =~ /AssemblyVersion\("(\d\.\d\.\d)/) ) {
+	    		version = (line =~ /AssemblyVersion\("(\d\.\d\.\d)/)[0][1]
+	    		break;
+	    	}
+	    }
+	}
+
+	return version
+}
+
 
 def getVersionNupkg(path) {
 
@@ -63,7 +81,11 @@ def getVersionNupkg(path) {
 
 	}
 
-	return "0.0.0";
+	return "0.0.0"
+}
+
+def parseVersion(versionStr) {
+	return versionStr.replaceAll('\\.', '')
 }
 
 def getCurrentDir() { 
@@ -74,10 +96,32 @@ def isUpdatedVersion(nupkgVersion, nuspecVersion) {
 	return !nupkgVersion.equals(nuspecVersion)
 }
 
+def isUpdatedVersionTwo(assemblyVersion, nupkgVersion) {
+	println 'c# : ' + assemblyVersion
+	println 'nupkg : ' + nupkgVersion
+	return parseVersion(assemblyVersion) > parseVersion(nupkgVersion)
+}
+
+def getIntAssemblyVersion(path) {
+
+	def strVersion = getAssemblyVersion(path)
+	return parseVersion(strVersion)
+}
+
+def getIntVersionNupkg(path) {
+
+	def strVersion = getVersionNupkg(path)
+	return parseVersion(strVersion)
+}
+
 ext {
 
 	getVersion = this.&getVersion
 	getVersionNupkg = this.&getVersionNupkg
 	getCurrentDir = this.&getCurrentDir
 	isUpdatedVersion = this.&isUpdatedVersion
+	getAssemblyVersion = this.&getAssemblyVersion
+	getIntAssemblyVersion = this.&getIntAssemblyVersion
+	getIntVersionNupkg = this.&getIntVersionNupkg
+	isUpdatedVersionTwo = this.&isUpdatedVersionTwo
 }
