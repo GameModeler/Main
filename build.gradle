@@ -15,9 +15,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import groovy.xml.*
+
+
 //sourceCompatibility = 1.8
 version = '1.0'
-apply plugin: 'java'
+// apply plugin: 'java'
 
 // custom methods to manage nupkg versions
 apply from: 'common-methods.gradle'
@@ -37,6 +40,9 @@ def mapPath = "Map/"
 def apiPath = "Api/"
 def animationPath = "Animation/"
 
+// c# assembly version
+def assembly = "Properties/AssemblyInfo.cs"
+
 
 ////// DATABASE MODULE ////////////////////
 
@@ -49,16 +55,31 @@ task dataBaseMkNupkg(type: MkNuget) {
 	
 	module 'DataBase'
 	// get nuspec file version
-	nuspecVersion getVersion(databasePath + nuspec + nuspecFile)
+	// nuspecVersion getVersion(databasePath + nuspec + nuspecFile)
 	// get nupkg file version
-	nupkgVersion getVersionNupkg(databasePath + nuspec)
+	// nupkgVersion getVersionNupkg(databasePath + nuspec)
 	// nuspec folder path
 	nuspecPath databasePath + nuspec
-
 	// nuspec file
 	packageNuget nuspecFile
 
-	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+	// onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+}
+
+/**
+ * Create the DataBase Module package nuget
+ * @param  MkNuget [description]
+ * @return         [description]
+ */
+task databaseUpdateNuspec(type: UpdatePackageVersion) {
+	
+	assemblyVersion getAssemblyVersion(databasePath + assembly)
+	
+	nupkgVersion getVersionNupkg(databasePath + nuspec)
+
+	nuspecPath databasePath + nuspec + nuspecFile
+
+	onlyIf { isUpdatedVersionTwo(assemblyVersion, nupkgVersion) }
 }
 
 /**
@@ -77,7 +98,27 @@ task moveToDataBase(type: MoveTo) {
 
 	pathStr databasePath + nuspec
 
-	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+	// onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+
+}
+
+task dataBase(type: GenerateNuget) {
+
+	module 'DataBase'
+	// get nuspec file version
+	nuspecVersion getVersion(databasePath + nuspec + nuspecFile)
+	// get nupkg file version
+	nupkgVersion getVersionNupkg(databasePath + nuspec)
+	// nuspec folder path
+	// nuspecPath databasePath + nuspec
+	// nuspec file
+	packageNuget nuspecFile
+
+	assemblyVersion getAssemblyVersion(databasePath + assembly)
+
+	nuspecPath databasePath + nuspec + nuspecFile
+
+	pathStr databasePath + nuspec
 
 }
 
@@ -85,9 +126,9 @@ task moveToDataBase(type: MoveTo) {
  * Get the DataBase Module nuget package version
  */
 task databaseNupkgVersion {
-	version getVersionNupkg(databasePath + nuspec)
 
 	doLast {
+		def version = getVersionNupkg(databasePath + nuspec)
 		println "DataBase Module's package nuget version : "  + version
 	}
 }
@@ -96,10 +137,21 @@ task databaseNupkgVersion {
  * Get the DataBase Module Package.nuspec version
  */
 task databaseNuspecVersion {
-	version getVersion(databasePath + nuspec + nuspecFile)
 
 	doLast {
+		def version = getVersion(databasePath + nuspec + nuspecFile)
 		println "DataBase Module's Package.nuspec version : "  + version
+	}
+}
+
+/**
+ * Get the DataBase Module AssemblyInfo.cs version
+ */
+task databaseAssemblyVersion {
+
+	doLast {
+		def version = getAssemblyVersion(databasePath + assemblyVersion)
+		println "DataBase Module's AssemblyInfo.cs version : " + version
 	}
 }
 
@@ -109,10 +161,13 @@ task databaseNuspecVersion {
  * @param  'moveToDataBase']  [description]
  * @return                    [description]
  */
-task dataBaseNuget(dependsOn: ['dataBaseMkNupkg', 'moveToDataBase']) {
+task dataBaseNuget(dependsOn: ['databaseUpdateNuspec', 'dataBaseMkNupkg', 'moveToDataBase']) {
 
 	doLast {}
 }
+
+dataBaseMkNupkg.mustRunAfter databaseUpdateNuspec
+moveToDataBase.mustRunAfter dataBaseMkNupkg
 
 ////// LOGGER MODULE ////////////////////
 
@@ -129,10 +184,10 @@ task loggerMkNupkg(type: MkNuget, dependsOn: 'dataBaseNuget') {
 	
 	nuspecPath loggerPath + nuspec
 
-	nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
+/*	nuspecVersion getVersion(loggerPath + nuspec + nuspecFile)
 
 	// get nupkg file version
-	nupkgVersion getVersionNupkg(loggerPath + nuspec)
+	nupkgVersion getVersionNupkg(loggerPath + nuspec)*/
 
 	// nuspec folder path
 	nuspecPath loggerPath + nuspec
@@ -140,7 +195,7 @@ task loggerMkNupkg(type: MkNuget, dependsOn: 'dataBaseNuget') {
 	// nuspec file
 	packageNuget nuspecFile
 
-	onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
+	// onlyIf { isUpdatedVersion(nupkgVersion, nuspecVersion) }
 }
 
 /**
@@ -570,15 +625,15 @@ class MoveTo extends DefaultTask {
 
 	def moveToMethod(module, version, source, target) {
 
-		println "here"
-
 		def GAME_MODELER = "GameModeler"
 
 		// package nuget name
 		def nupkgName = String.format("%s.%s.%s.nupkg", GAME_MODELER, module, version)
 
-		if( "".equals(source)) {
-		   	Thread.sleep(1000);
+		File thefile = project.file(source + nupkgName)
+
+		while("".equals(source) && !thefile.exists() ) {
+			Thread.sleep(1000);
 		}
 
 		project.file(source + nupkgName).renameTo(project.file(target + nupkgName))
@@ -598,12 +653,6 @@ class MkNuget extends DefaultTask {
 	nuspecPath
 
 	@Input
-	nuspecVersion
-
-	@Input
-	nupkgVersion
-
-	@Input
 	packageNuget
 
 	@TaskAction
@@ -617,3 +666,37 @@ class MkNuget extends DefaultTask {
 	}
 }
 
+class UpdatePackageVersion extends DefaultTask {
+
+	@Input
+	assemblyVersion
+
+	@Input
+	nuspecPath
+
+	@Input
+	nupkgVersion
+
+	@TaskAction
+	def updatePackageVersion() {
+
+		File f = new File(nuspecPath)
+
+		try {
+
+			def person = new XmlSlurper().parse(f)
+			person.metadata[0].version[0] = assemblyVersion
+			
+			def writer = new FileWriter(f)
+			XmlUtil.serialize(person, writer)
+
+		} finally {
+
+			if(writer != null) {
+				writer.close();
+			}
+		}
+
+
+	}
+}
