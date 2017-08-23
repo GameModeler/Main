@@ -102,7 +102,7 @@ task moveToDataBase(type: MoveTo) {
 
 }
 
-task dataBase(type: GenerateNuget) {
+/*task dataBase(type: GenerateNuget) {
 
 	module 'DataBase'
 	// get nuspec file version
@@ -120,7 +120,7 @@ task dataBase(type: GenerateNuget) {
 
 	pathStr databasePath + nuspec
 
-}
+}*/
 
 /**
  * Get the DataBase Module nuget package version
@@ -696,7 +696,5 @@ class UpdatePackageVersion extends DefaultTask {
 				writer.close();
 			}
 		}
-
-
 	}
 }
